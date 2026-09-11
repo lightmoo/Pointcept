@@ -107,18 +107,33 @@ class ClsEvaluator(HookBase):
         )
 
         # Log Output - Per Class (Order: iou, acc, precision, f1)
-        for i in range(self.trainer.cfg.data.num_classes):
-            self.trainer.logger.info(
-                "Class_{idx}-{name} Result: iou/acc/precision/f1 "
-                "{iou:.4f}/{acc:.4f}/{prec:.4f}/{f1:.4f}".format(
-                    idx=i,
-                    name=self.trainer.cfg.data.names[i],
-                    iou=iou_class[i],
-                    acc=acc_class[i],
-                    prec=precision_class[i],
-                    f1=f1_class[i],
+        # for i in range(self.trainer.cfg.data.num_classes):
+        #     self.trainer.logger.info(
+        #         "Class_{idx}-{name} Result: iou/acc/precision/f1 "
+        #         "{iou:.4f}/{acc:.4f}/{prec:.4f}/{f1:.4f}".format(
+        #             idx=i,
+        #             name=self.trainer.cfg.data.names[i],
+        #             iou=iou_class[i],
+        #             acc=acc_class[i],
+        #             prec=precision_class[i],
+        #             f1=f1_class[i],
+        #         )
+        #     )
+        # Log Output - Per Class
+        # 默认不在终端逐类打印，详细类别指标由 TrainingMetricsHook 保存到 TXT
+        if self.write_cls_metrics:
+            for i in range(self.trainer.cfg.data.num_classes):
+                self.trainer.logger.info(
+                    "Class_{idx}-{name} Metrics: IoU={iou:.4f}, accuracy={acc:.4f}, "
+                    "precision={prec:.4f}, F1={f1:.4f}".format(
+                        idx=i,
+                        name=self.trainer.cfg.data.names[i],
+                        iou=iou_class[i],
+                        acc=acc_class[i],
+                        prec=precision_class[i],
+                        f1=f1_class[i],
+                    )
                 )
-            )
 
         current_epoch = self.trainer.epoch + 1
         if self.trainer.writer is not None:

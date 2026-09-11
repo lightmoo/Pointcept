@@ -39,3 +39,4 @@ from .partnete import PartNetEDataset
 
 # dataloader
 from .dataloader import MultiDatasetDataloader
+from .gridnethd import Gridnethd

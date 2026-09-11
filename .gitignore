@@ -14,3 +14,8 @@ outputs/
 */.DS_Store
 **/*.out
 Dockerfile
+# Large point-cloud / model files
+*.las
+*.laz
+*.pth
+*.pt
