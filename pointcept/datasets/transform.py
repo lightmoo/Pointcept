@@ -1554,3 +1554,62 @@ class ImgAugmentation(object):
         correspondence[mask] -= np.array(self.crop_start)
         point["correspondence"] = correspondence.reshape(correspondence_shape)
         return point
+
+
+@TRANSFORMS.register_module()
+class RareClassSphereCrop(object):
+
+    def __init__(
+        self,
+        point_max=50000,
+        rare_classes=(0, 2, 3),
+        rare_prob=0.8,
+    ):
+        self.point_max = point_max
+        self.rare_classes = tuple(rare_classes)
+        self.rare_prob = rare_prob
+
+    def __call__(self, data_dict):
+
+        coord = data_dict["coord"]
+        n = coord.shape[0]
+
+        if n <= self.point_max:
+            return data_dict
+
+        center_idx = None
+
+        if (
+            "segment" in data_dict
+            and np.random.rand() < self.rare_prob
+        ):
+            segment = data_dict["segment"].reshape(-1)
+
+            present = [
+                c for c in self.rare_classes
+                if np.any(segment == c)
+            ]
+
+            if len(present) > 0:
+                cls = np.random.choice(present)
+                candidates = np.where(segment == cls)[0]
+                center_idx = np.random.choice(candidates)
+
+        if center_idx is None:
+            center_idx = np.random.randint(n)
+
+        center = coord[center_idx]
+
+        dist = np.sum(
+            (coord-center)**2,
+            axis=1
+        )
+
+        idx = np.argsort(dist)[:self.point_max]
+
+        for key, value in data_dict.items():
+            if hasattr(value, "shape"):
+                if len(value.shape) > 0 and value.shape[0] == n:
+                    data_dict[key] = value[idx]
+
+        return data_dict

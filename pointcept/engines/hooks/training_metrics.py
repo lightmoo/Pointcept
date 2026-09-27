@@ -84,9 +84,9 @@ class TrainingMetricsHook(HookBase):
         precision = intersection / (output_area + eps)
         f1 = 2.0 * precision * recall / (precision + recall + eps)
 
-        mIoU = float(np.mean(iou))
-        macroF1 = float(np.mean(f1))
-        mAcc = float(np.mean(recall))
+        mIoU = float(np.mean(iou[union > 0]))
+        macroF1 = float(np.mean(f1[union > 0]))
+        mAcc = float(np.mean(recall[union > 0]))
         allAcc = float(
             np.sum(intersection) / (np.sum(target) + eps)
         )
